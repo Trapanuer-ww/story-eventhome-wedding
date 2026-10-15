@@ -64,8 +64,7 @@
       bar: mat(0x2B2421, { roughness: 0.5 }), barTop: mat(0xEDE6DA, { roughness: 0.3 }), sofa: mat(0x5B3A2A, { roughness: 0.7 }),
       crystal: new THREE.MeshStandardMaterial({ color: 0xFFF3DC, emissive: 0xFFE2A8, emissiveIntensity: 1.1, roughness: 0.2 }),
       glow: new THREE.MeshBasicMaterial({ color: 0xFFE3AE, transparent: true, opacity: 0.2, depthWrite: false }),
-      fire: new THREE.MeshStandardMaterial({ color: 0x3a1c0c, emissive: 0xFF8A3D, emissiveIntensity: 0.9 }),
-      candle: new THREE.MeshStandardMaterial({ color: 0xFFF6E6, emissive: 0xFFC56B, emissiveIntensity: 1.2 })
+      fire: new THREE.MeshStandardMaterial({ color: 0x3a1c0c, emissive: 0xFF8A3D, emissiveIntensity: 0.9 })
     };
 
     function parquet() {
@@ -315,7 +314,7 @@
     }
 
     // ---------------- мебель и расстановки ----------------
-    var chairGeo = new THREE.BoxGeometry(0.34, 0.82, 0.34), candleGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.18, 8), flowerGeo = new THREE.SphereGeometry(0.13, 10, 8);
+    var chairGeo = new THREE.BoxGeometry(0.34, 0.82, 0.34), flowerGeo = new THREE.SphereGeometry(0.13, 10, 8);
     function chair(g, x, z, rot) { var c = new THREE.Mesh(chairGeo, M.chair); c.position.set(x, 0.41, z); c.rotation.y = rot || 0; c.castShadow = true; g.add(c); return 1; }
     // прямой стол от (x1,z1) до (x2,z2), стулья по обе стороны через step
     function table(g, x1, z1, x2, z2, opts) {
@@ -327,8 +326,7 @@
       for (var i = 0; i < n; i++) {
         var f = (i + 0.5) / n, cx = x1 + dx * f, cz = z1 + dz * f;
         (opts.sides || [-1, 1]).forEach(function (s) { seats += chair(g, cx + nx * s * 0.62, cz + nz * s * 0.62, -ang); });
-        if (i % 2 === 0) { var cd = new THREE.Mesh(candleGeo, M.candle); cd.position.set(cx, 0.85, cz); g.add(cd); }
-        if (i % 3 === 1) {                                   // цветы и зелень по центру стола
+        if (i % 2 === 0) {                                   // цветы и зелень по центру стола
           var gr = new THREE.Mesh(flowerGeo, M.green); gr.position.set(cx, 0.86, cz); gr.scale.set(1.4, 0.6, 1); g.add(gr);
           var fw = new THREE.Mesh(flowerGeo, M.flower); fw.position.set(cx + 0.05, 0.93, cz); fw.scale.set(0.7, 0.7, 0.7); g.add(fw);
         }
@@ -418,7 +416,20 @@
     var R_MIN = 3, R_MAX = 90;
     function zoomBy(f) { rad = Math.max(R_MIN, Math.min(R_MAX, rad * f)); fly = null; kick(); }
     function npts() { return Object.keys(pts).length; }
+    // На телефоне схема не перехватывает пальцы, пока не включён режим «Вращать»: страница прокручивается как обычно.
+    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    var rotateOn = !coarse, rotBtn = root.querySelector("[data-rotate]"), hint = document.getElementById("hint3d"), stageEl = canvas.parentElement;
+    function syncRotate() {
+      stageEl.classList.toggle("is-rotating", coarse && rotateOn);
+      if (rotBtn) rotBtn.setAttribute("aria-pressed", rotateOn ? "true" : "false");
+    }
+    if (coarse) {
+      if (rotBtn) { rotBtn.hidden = false; rotBtn.addEventListener("click", function () { rotateOn = !rotateOn; syncRotate(); }); }
+      if (hint) hint.textContent = hint.getAttribute("data-touch");
+    } else if (hint) hint.textContent = hint.getAttribute("data-desktop");
+    syncRotate();
     canvas.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "touch" && !rotateOn) return;
       engaged = true; fly = null;
       pts[e.pointerId] = { x: e.clientX, y: e.clientY };
       canvas.setPointerCapture(e.pointerId);
@@ -457,7 +468,7 @@
       if (npts() === 0) drag = null;
       if (wasTap) {
         var now = performance.now();
-        if (now - lastTap < 320 && lastTapXY && Math.abs(lastTapXY.x - e.clientX) + Math.abs(lastTapXY.y - e.clientY) < 30) { focusAt(e.clientX, e.clientY); lastTap = 0; }
+        if (e.pointerType === "mouse" && now - lastTap < 320 && lastTapXY && Math.abs(lastTapXY.x - e.clientX) + Math.abs(lastTapXY.y - e.clientY) < 30) { focusAt(e.clientX, e.clientY); lastTap = 0; }
         else { lastTap = now; lastTapXY = { x: e.clientX, y: e.clientY }; }
       }
     }
@@ -470,36 +481,25 @@
     var zIn = root.querySelector('[data-zoom="in"]'), zOut = root.querySelector('[data-zoom="out"]'), lblBtn = root.querySelector("[data-labels]");
     if (zIn) zIn.addEventListener("click", function () { zoomBy(0.75); });
     if (zOut) zOut.addEventListener("click", function () { zoomBy(1.33); });
-    var labelsOn = true;
     if (lblBtn) lblBtn.addEventListener("click", function () {
-      labelsOn = !labelsOn; lblBtn.setAttribute("aria-pressed", labelsOn ? "true" : "false");
-      lblBtn.textContent = labelsOn ? "Скрыть подписи" : "Показать подписи"; kick();
+      pinsOn = !pinsOn; lblBtn.setAttribute("aria-pressed", pinsOn ? "true" : "false"); kick();
     });
 
-    // ---------------- подписи зон ----------------
+    // ---------------- номера зон маршрута (подписи вынесены под схему, поэтому ничего не перекрывается) ----------------
     var box = canvas.parentElement;
-    function label(text, x, y, z) {
-      var el = document.createElement("span"); el.textContent = text;
-      el.style.cssText = "position:absolute;transform:translate(-50%,-100%);padding:4px 10px;border-radius:999px;background:rgba(244,238,228,.94);color:#1D1A18;font:700 13px/1.3 Mulish,Arial,sans-serif;white-space:nowrap;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.35);";
+    function pin(n, x, y, z) {
+      var el = document.createElement("span"); el.className = "pin3d"; el.textContent = n;
       box.appendChild(el); return { el: el, pos: new THREE.Vector3(x, y, z) };
     }
-    var R = (root.getAttribute("data-route") || "Лестница от входа|Welcome-зона|Зал и сцена|Лаунж и бар").split("|");
-    var labels = [
-      label("1  " + R[0], -6.4, 2.6, 3.6),
-      label("2  " + R[1], -3.8, 2.4, -3.0),
-      label("3  " + R[2], 9.5, 2.2, 2.2),
-      label("4  " + R[3], 23.0, 2.2, 0.0),
-      label("Сцена и экран", 2.0, 2.4, 2.4),
-      label("Камин", 12.9, 1.8, slantZ(12.9) - 0.2)
-    ];
+    var pins = [pin(1, -7.4, 1.6, 3.2), pin(2, -3.8, 1.6, -3.0), pin(3, 9.5, 1.9, 2.2), pin(4, 22.8, 1.7, 0.2)];
+    var pinsOn = true, pinVec = new THREE.Vector3();
     function placeLabels() {
-      var w = canvas.clientWidth, h = canvas.clientHeight, v = new THREE.Vector3();
-      labels.forEach(function (l) {
-        v.copy(l.pos).project(camera);
-        var lx = (v.x + 1) / 2 * w;
-        var okView = labelsOn && (typeof viewId === "undefined" || viewId === "all");
-        l.el.style.display = okView && v.z < 1 && lx > l.el.offsetWidth / 2 + 4 && lx < w - l.el.offsetWidth / 2 - 4 ? "block" : "none";
-        l.el.style.left = ((v.x + 1) / 2 * w) + "px"; l.el.style.top = ((1 - v.y) / 2 * h) + "px";
+      var w = canvas.clientWidth, h = canvas.clientHeight, show = pinsOn && viewId === "all";
+      pins.forEach(function (l) {
+        pinVec.copy(l.pos).project(camera);
+        var x = Math.max(18, Math.min(w - 18, (pinVec.x + 1) / 2 * w)), y = Math.max(18, Math.min(h - 18, (1 - pinVec.y) / 2 * h));
+        l.el.style.opacity = show && pinVec.z < 1 ? "1" : "0";
+        l.el.style.left = x + "px"; l.el.style.top = y + "px";
       });
     }
 

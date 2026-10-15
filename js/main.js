@@ -81,7 +81,7 @@
   }
 
   /* ---------------------------------------------------------------------- */
-  /* Фильм в арке: сцена 1 → титр → сцена 2 → чёрный экран → Story.         */
+  /* Фильм-монтаж: кадры дома → титр → пара → тёмный кадр → логотип → пара. */
   /* Таймлайн задан в CSS. Без JS и при «уменьшении движения» виден сразу   */
   /* финальный кадр.                                                        */
   /* ---------------------------------------------------------------------- */
@@ -92,7 +92,7 @@
     var skipBtn = document.getElementById("filmSkip");
     if (!stage || !pauseBtn || !replayBtn || !skipBtn) return;
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+    if (reduce) { stage.classList.add("is-done"); return; }
     function setPaused(on) {
       stage.classList.toggle("is-paused", on);
       pauseBtn.textContent = on ? "Продолжить" : "Пауза";
@@ -110,10 +110,9 @@
     var runId = 0;
     function finish() { stage.classList.remove("is-playing"); stage.classList.add("is-done"); setPaused(false); setDone(true); }
     skipBtn.addEventListener("click", function () { finish(); track("wed_film_skip", {}); });
-    // последняя анимация — «Story» дописалось; через паузу возвращается кадр с парой и остаётся
-    stage.querySelector(".film-end .sign").addEventListener("animationend", function () {
-      var id = runId;
-      window.setTimeout(function () { if (id === runId && stage.classList.contains("is-playing")) finish(); }, 1300);
+    // последний слой монтажа — кадр с парой: когда он проявился, фильм закончен и кадр остаётся
+    stage.querySelector(".film-final").addEventListener("animationend", function () {
+      if (stage.classList.contains("is-playing")) finish();
     });
     pauseBtn.addEventListener("click", function () { setPaused(!stage.classList.contains("is-paused")); });
     replayBtn.addEventListener("click", function () { play(); track("wed_film_replay", {}); });
@@ -211,6 +210,7 @@
   // Кнопки «Записаться на просмотр» ведут к форме: фокус в первое поле, когда форма загрузилась
   document.querySelectorAll("[data-goto-form]").forEach(function (el) {
     el.addEventListener("click", function () {
+      if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
       window.setTimeout(function () {
         var f = b24Box && b24Box.querySelector("input:not([type=hidden])");
         if (f) f.focus({ preventScroll: true });
