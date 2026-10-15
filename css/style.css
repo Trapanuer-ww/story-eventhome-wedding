@@ -475,3 +475,5 @@ address{ font-style:normal; }
   .b24-card .b24-form-btn{ min-height:52px !important; }
   .story-b24 .b24-form-control-container label,.story-b24 .b24-form-control-label{ font-size:14px !important; }
 }
+
+.case-draft{ padding:10px 14px; border:1px dashed rgba(134,102,58,.55); border-radius:10px; background:rgba(216,180,122,.12); color:var(--ink-soft); font-size:14px; line-height:1.45; }
