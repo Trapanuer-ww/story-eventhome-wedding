@@ -145,7 +145,7 @@ address{ font-style:normal; }
 .js .film:not(.is-done) .film-final{ opacity:0; }
 .title-line{ font-family:var(--f-display); font-weight:500; font-size:clamp(34px,3.6vw,62px); line-height:1.05; color:var(--pearl); text-wrap:balance; }
 .title-line b{ font-weight:700; color:var(--gold); }
-.story-logo{ width:min(62%,420px); height:auto; filter:brightness(0) invert(1); clip-path:inset(0 100% 0 0); }
+.story-word{ margin:0; font-family:var(--f-display); font-weight:600; font-size:clamp(110px,15vw,230px); line-height:.95; letter-spacing:-.02em; color:var(--pearl); clip-path:inset(0 100% 0 0); padding:0 .06em .1em; }
 .film-ctrl{ position:absolute; right:20px; bottom:12px; z-index:9; display:flex; justify-content:flex-end; gap:6px; }
 .film-ctrl button{ min-height:44px; padding:0 12px; background:none; border:0; font-size:14px; font-weight:600; color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.7); cursor:pointer; text-decoration:underline; text-underline-offset:4px; text-decoration-color:rgba(255,255,255,.4); touch-action:manipulation; }
 .film-ctrl button:hover{ text-decoration-color:#fff; }
@@ -156,7 +156,7 @@ address{ font-style:normal; }
 .film.is-playing .film-title{ animation:cutin var(--d) linear var(--t) both; }
 .film.is-playing .film-dip{ animation:dip var(--d) linear var(--t) both; }
 .film.is-playing .film-story{ animation:cutin var(--d) linear var(--t) both; }
-.film.is-playing .story-logo{ animation:reveal 1.3s cubic-bezier(.5,.05,.25,1) calc(var(--t) + .5s) both; }
+.film.is-playing .story-word{ animation:reveal 1.3s cubic-bezier(.5,.05,.25,1) calc(var(--t) + .5s) both; }
 .film.is-playing .film-final{ animation:fadein 1.3s ease var(--t) both; }
 .film.is-playing .film-caption{ opacity:0; }
 .film.is-done .film-caption{ opacity:1; transition:opacity .8s ease; }
@@ -409,6 +409,12 @@ address{ font-style:normal; }
   .foot-grid{ grid-template-columns:1fr 1fr; }
 }
 
+@media (max-width:759px){
+  .bento{ grid-template-columns:1fr 1fr; grid-template-rows:none; grid-auto-rows:auto; gap:8px; }
+  .bento figure{ aspect-ratio:4/5; }
+  .bento .b1,.bento .b2,.bento .b3{ grid-row:auto; grid-column:auto; }
+  .bento .b2{ grid-column:1 / -1; aspect-ratio:3/2; order:-1; }
+}
 @media (max-width:759px){
   :root{ --header-h:73px; --pad:clamp(36px,5.6svh,48px); }
   body{ font-size:16px; }
