@@ -203,7 +203,10 @@ address{ font-style:normal; }
 .stage3d:active{ cursor:grabbing; }
 .stage3d canvas{ display:block; width:100%; height:100%; }
 .stage3d-fallback{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--pearl-soft); pointer-events:none; }
-.pin3d{ position:absolute; width:28px; height:28px; margin:-14px 0 0 -14px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#F4EEE4; color:#1D1A18; font:800 14px/1 var(--f-body); box-shadow:0 0 0 3px rgba(20,17,15,.55), 0 4px 12px rgba(0,0,0,.45); pointer-events:none; will-change:left,top; }
+.pin3d{ position:absolute; width:30px; height:30px; margin:-15px 0 0 -15px; padding:0; display:flex; align-items:center; justify-content:center; border:0; border-radius:50%; background:#F4EEE4; color:#1D1A18; font:800 14px/1 var(--f-body); box-shadow:0 0 0 3px rgba(20,17,15,.55), 0 4px 12px rgba(0,0,0,.45); cursor:pointer; will-change:left,top; touch-action:manipulation; }
+.pin3d::after{ content:""; position:absolute; inset:-9px; border-radius:50%; }
+.pin3d:hover{ background:var(--gold); }
+.views3d .short{ display:none; }
 .bar3d{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; margin-top:12px; }
 .views3d,.tools3d{ display:flex; flex-wrap:wrap; gap:8px; }
 .views3d button,.tools3d button{ min-height:44px; padding:0 16px; border:1px solid var(--line); border-radius:999px; background:transparent; color:var(--ink); font-size:14px; font-weight:700; cursor:pointer; touch-action:manipulation; transition:background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease); }
@@ -480,3 +483,17 @@ address{ font-style:normal; }
 
 .walk-more{ margin-top:clamp(20px,3svh,32px); }
 @media (max-width:759px){ .walk-more .btn{ width:100%; } }
+
+/* 3D на телефоне: панель видов в одну строку, крупные кнопки, схема на всю ширину и выше */
+@media (max-width:759px){
+  .views3d{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; width:100%; }
+  .views3d .full{ display:none; } .views3d .short{ display:inline; }
+  .views3d button{ padding:0 4px; font-size:14px; }
+  .tools3d{ display:grid; grid-template-columns:1fr 1fr 48px 48px; gap:6px; width:100%; }
+  .tools3d button{ padding:0 6px; } .tools3d button[hidden]{ display:none; }
+  .tools3d button[data-zoom]{ width:auto; }
+  .hall3d .stage3d{ height:min(430px,58svh); }
+  .pin3d{ width:34px; height:34px; margin:-17px 0 0 -17px; font-size:15px; }
+  .route3d{ display:grid; grid-template-columns:1fr; gap:8px; }
+  .route3d li{ font-size:15px; }
+}
