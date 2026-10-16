@@ -265,101 +265,6 @@
     }
     wall(-8.9, 0, -8.9, 4.5, 2.2, M.wall); wall(-8.9, 4.5, -2.9, 4.5, 1.1, M.wallLow);
 
-
-    // ---- 1 этаж: входная группа по фото (белые двустворчатые двери с лепниной, арочные зеркальные рамы, тёмная плитка, тумба) ----
-    // Положение по плану: вход на север, лестничный блок слева; смещение 12,5 м к югу от лестницы 2 этажа.
-    var LX0 = -2.8, LX1 = 1.0, LZ0 = 10.0, LZ1 = 17.0, LCX = (LX0 + LX1) / 2, LH = 3.5;
-    (function entrance() {
-      function canvasTex(w, h, draw, rx, ry) {
-        var c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h);
-        var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx || 1, ry || 1); return t;
-      }
-      var tileMat = mat(0xffffff, { roughness: 0.4, map: canvasTex(256, 256, function (g, w, h) {
-        g.fillStyle = "#34383B"; g.fillRect(0, 0, w, h);
-        for (var i = 0; i < 4; i++) for (var j = 0; j < 4; j++) { g.fillStyle = (i + j) % 2 ? "#2D3134" : "#3A3F42"; g.fillRect(i * 64 + 2, j * 64 + 2, 60, 60); }
-      }, 2.4, 4.2) });
-      var wallTex = canvasTex(260, 420, function (g, w, h) {              // белая стена с двойным молдингом и панелью, как на фото
-        g.fillStyle = "#F2EEE7"; g.fillRect(0, 0, w, h);
-        g.fillStyle = "#E4DED3"; g.fillRect(0, 330, w, 90);
-        g.strokeStyle = "#CFC6B6"; g.lineWidth = 3; g.strokeRect(20, 346, 220, 60);
-        g.strokeStyle = "#D9D2C5"; g.lineWidth = 4; g.strokeRect(24, 40, 212, 270);
-        g.strokeStyle = "#E7E1D6"; g.lineWidth = 2; g.strokeRect(38, 54, 184, 242);
-      }, 1.5, 1);
-      var lobbyWall = mat(0xffffff, { map: wallTex, roughness: 0.9 });
-      var white = mat(0xF6F3EC, { roughness: 0.7 }), cream = mat(0xD8CBB0, { roughness: 0.75 });
-      var frame = mat(0x1F2224, { roughness: 0.5 }), glass = new THREE.MeshStandardMaterial({ color: 0x8C98A0, roughness: 0.1, metalness: 0.8 });
-      var rug = mat(0xB9B4AC, { roughness: 1 }), velvet = mat(0x1B1C25, { roughness: 1 });
-      function box(w, h, d, m, x, y, z, ry) { var o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); if (ry) o.rotation.y = ry; o.castShadow = o.receiveShadow = true; scene.add(o); return o; }
-
-      // пол и стены
-      var floor1 = new THREE.Mesh(new THREE.BoxGeometry(LX1 - LX0, 0.1, LZ1 - LZ0), tileMat); floor1.position.set(LCX, -0.05, (LZ0 + LZ1) / 2); floor1.receiveShadow = true; scene.add(floor1);
-      // фасадная стена с проёмом 1,9 м
-      var dx0 = LCX - 0.95, dx1 = LCX + 0.95;
-      box(dx0 - LX0, LH, 0.25, lobbyWall, (LX0 + dx0) / 2, LH / 2, LZ0);
-      box(LX1 - dx1, LH, 0.25, lobbyWall, (dx1 + LX1) / 2, LH / 2, LZ0);
-      box(1.9, LH - 2.55, 0.25, lobbyWall, LCX, 2.55 + (LH - 2.55) / 2, LZ0);
-      // лепнина над дверью: картуш из нескольких белых форм
-      box(1.7, 0.1, 0.16, white, LCX, 2.62, LZ0 + 0.1);
-      box(0.5, 0.34, 0.12, white, LCX, 2.9, LZ0 + 0.12);
-      [-1, 1].forEach(function (sd) {
-        var curl = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.045, 8, 16, Math.PI * 1.5), white); curl.position.set(LCX + sd * 0.48, 2.92, LZ0 + 0.13); curl.rotation.z = sd > 0 ? 0 : Math.PI; scene.add(curl);
-        box(0.36, 0.05, 0.12, white, LCX + sd * 0.78, 2.78, LZ0 + 0.1);
-      });
-      var crown = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), white); crown.position.set(LCX, 3.14, LZ0 + 0.13); scene.add(crown);
-      // створки: белые, с шестью филёнками, распахнуты внутрь
-      function leaf(hingeX, dir) {
-        var g = new THREE.Group(); g.position.set(hingeX, 0, LZ0);
-        var body = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.5, 0.07), white); body.position.set(dir * 0.475, 1.25, 0); body.castShadow = true; g.add(body);
-        for (var cx = 0; cx < 2; cx++) for (var cy = 0; cy < 3; cy++) {
-          var pn = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.62, 0.025), cream); pn.position.set(dir * (0.25 + cx * 0.45), 0.5 + cy * 0.8 + 0.1, 0.045); g.add(pn);
-        }
-        var knob = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 6), mat(0xC9B27A, { metalness: 0.8, roughness: 0.3 })); knob.position.set(dir * 0.85, 1.1, 0.07); g.add(knob);
-        g.rotation.y = dir > 0 ? -1.85 : 1.85; scene.add(g);
-      }
-      leaf(dx0, 1); leaf(dx1, -1);
-      // боковые стены; в западной — проход к лестнице
-      box(0.25, LH, LZ1 - LZ0, lobbyWall, LX1, LH / 2, (LZ0 + LZ1) / 2);
-      box(0.25, LH, 4.6, lobbyWall, LX0, LH / 2, LZ0 + 2.3);
-      box(0.25, LH, 0.5, lobbyWall, LX0, LH / 2, LZ1 - 0.25);
-      box(0.25, LH - 2.4, 1.9, lobbyWall, LX0, 2.4 + (LH - 2.4) / 2, LZ1 - 1.45);
-      // окно в западной стене: тёмная рама и переплёт
-      [LZ0 + 0.8, LZ0 + 3.6].forEach(function (z0) { box(0.1, 0.08, 1.9, frame, LX0 + 0.1, 1.2, z0 + 0.95); box(0.1, 0.08, 1.9, frame, LX0 + 0.1, 2.5, z0 + 0.95); });
-      box(0.1, 1.38, 0.08, frame, LX0 + 0.1, 1.85, LZ0 + 1.75); box(0.1, 1.38, 0.08, frame, LX0 + 0.1, 1.85, LZ0 + 2.7);
-      box(0.06, 1.3, 1.9, glass, LX0 + 0.1, 1.85, LZ0 + 1.75);
-      // внутренняя стена с дверью и двумя арочными зеркалами, как на фото
-      var iz = LZ0 + 3.6;
-      box(LX1 - LX0, LH, 0.2, lobbyWall, LCX, LH / 2, iz + 0.1);
-      box(1.05, 2.3, 0.16, cream, LCX, 1.15, iz - 0.02);                                      // дверь с филёнками
-      for (var r = 0; r < 4; r++) box(0.38, 0.5, 0.03, white, LCX + (r % 2 ? 0.25 : -0.25), 0.5 + Math.floor(r / 2) * 0.85 + 0.12, iz - 0.11);
-      [-1, 1].forEach(function (sd) {
-        var mx = LCX + sd * 1.38;
-        box(0.92, 2.0, 0.07, frame, mx, 1.15, iz - 0.04); box(0.78, 1.86, 0.075, glass, mx, 1.15, iz - 0.045);
-        var arcF = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.07, 24), frame); arcF.rotation.x = Math.PI / 2; arcF.position.set(mx, 2.15, iz - 0.04); scene.add(arcF);
-        var arcG = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.39, 0.075, 24), glass); arcG.rotation.x = Math.PI / 2; arcG.position.set(mx, 2.15, iz - 0.045); scene.add(arcG);
-      });
-      // ковёр с каймой, тумба с шарами, тёмная штора справа
-      box(1.9, 0.03, 2.6, rug, LCX, 0.02, LZ0 + 1.9);
-      box(1.7, 0.035, 2.4, mat(0x8F8A82, { roughness: 1 }), LCX, 0.025, LZ0 + 1.9);
-      var ped = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.04, 28), white); ped.position.set(LX1 - 0.65, 0.78, LZ0 + 0.85); scene.add(ped);
-      [[0.18, 0.12], [0.24, 0.38], [0.2, 0.62]].forEach(function (b) { var sp = new THREE.Mesh(new THREE.SphereGeometry(b[0], 16, 12), white); sp.position.set(LX1 - 0.65, b[1] * 1.0 + 0.12, LZ0 + 0.85); sp.castShadow = true; scene.add(sp); });
-      for (var f = 0; f < 6; f++) box(0.16, LH - 0.4, 0.14, velvet, LX1 - 0.18, (LH - 0.4) / 2, LZ0 + 0.35 + f * 0.17);
-      // гардероб: комната с вешалкой
-      var CX0 = -7.7, CX1 = -4.7, CZ0 = 9.6, CZ1 = 12.4;
-      box(CX1 - CX0, 0.06, CZ1 - CZ0, mat(0xCFC9BD), (CX0 + CX1) / 2, 0.03, (CZ0 + CZ1) / 2);
-      box(CX1 - CX0, 2.6, 0.15, lobbyWall, (CX0 + CX1) / 2, 1.3, CZ0); box(0.15, 2.6, CZ1 - CZ0, lobbyWall, CX0, 1.3, (CZ0 + CZ1) / 2);
-      box(0.15, 2.6, CZ1 - CZ0, lobbyWall, CX1, 1.3, (CZ0 + CZ1) / 2); box(CX1 - CX0, 1.1, 0.15, lobbyWall, (CX0 + CX1) / 2, 0.55, CZ1);
-      box(CX1 - CX0 - 0.4, 0.05, 0.05, frame, (CX0 + CX1) / 2, 1.9, CZ0 + 0.6);
-      for (var h = 0; h < 11; h++) box(0.05, 0.9, 0.22, mat(h % 3 ? 0x3A3F4B : 0x6B5B4A, { roughness: 0.95 }), CX0 + 0.45 + h * 0.23, 1.4, CZ0 + 0.6);
-      // стойка гардеробщика
-      box(1.4, 1.0, 0.45, mat(0x6B4C36, { roughness: 0.5 }), (CX0 + CX1) / 2, 0.5, CZ1 - 0.1);
-      // лестница на 2 этаж: марши рядом с входом
-      block([[-8.9, 12.5], [-2.9, 12.5], [-2.9, 17.0], [-8.9, 17.0]], 0.1, tileMat);
-      for (var q = 0; q < 9; q++) { box(0.32, 0.17 * (q + 1), 1.4, M.stair, -8.3 + q * 0.32, 0.085 * (q + 1), 16.1); }
-      box(0.1, 1.0, 4.5, lobbyWall, -8.9, 0.5, 14.75);
-      // свет входной группы
-      var lobbyLight = new THREE.PointLight(0xFFE3BC, 0.9, 12, 2); lobbyLight.position.set(LCX, 2.9, LZ0 + 2.5); scene.add(lobbyLight);
-    })();
-
     // ---- люстры: хрустальные «ромбы» в зале и каскад над лестницей ----
     var crystal = new THREE.OctahedronGeometry(0.085, 0);
     function chandelier(x, z, top, len, width) {
@@ -389,23 +294,16 @@
     var warm = new THREE.PointLight(0xFFD49A, 0.5, 30, 2); warm.position.set(9, 3.2, 2.5); scene.add(warm);
 
     // ---------------- маршрут гостей: от лестницы до лаунжа ----------------
-    var RY = 1.15, RY1 = 0.9;                                  // над мебелью, чтобы столы не перекрывали линию
-    function toVec(arr, y) { return arr.map(function (p) { return new THREE.Vector3(p[0], y, p[1]); }); }
-    var routeA = new THREE.CatmullRomCurve3(toVec([[LCX, 8.6], [LCX, 11.4], [LCX, 13.2], [-1.6, 15.0], [-5.6, 15.4]], RY1), false, "centripetal", 0.4);
-    var routePts = toVec([[-8.0, 3.6], [-5.2, 3.6], [-4.4, 2.2], [-4.3, 0.2], [-3.8, -2.4], [-1.6, -0.7], [2.5, -0.6], [4.95, -0.5],
-      [4.95, 0.7], [6.0, 2.2], [12.5, 2.2], [17.2, 2.1], [19.2, 1.0], [22.6, 0.0]], RY);
-    var routeB = new THREE.CatmullRomCurve3(routePts, false, "centripetal", 0.4);
-    var routeMat = new THREE.MeshBasicMaterial({ color: 0xD8B47A });
-    var routeMesh = new THREE.Group();
-    routeMesh.add(new THREE.Mesh(new THREE.TubeGeometry(routeA, 80, 0.055, 8, false), routeMat));
-    routeMesh.add(new THREE.Mesh(new THREE.TubeGeometry(routeB, 220, 0.055, 8, false), routeMat));
+    var RY = 1.15;                                             // над мебелью, чтобы столы не перекрывали линию
+    var routePts = [[-8.0, 3.6], [-5.2, 3.6], [-4.4, 2.2], [-4.3, 0.2], [-3.8, -2.4], [-1.6, -0.7], [2.5, -0.6], [4.95, -0.5],
+      [4.95, 0.7], [6.0, 2.2], [12.5, 2.2], [17.2, 2.1], [19.2, 1.0], [22.6, 0.0]].map(function (p) { return new THREE.Vector3(p[0], RY, p[1]); });
+    var routeCurve = new THREE.CatmullRomCurve3(routePts, false, "centripetal", 0.4);
+    var routeMesh = new THREE.Mesh(new THREE.TubeGeometry(routeCurve, 220, 0.055, 8, false), new THREE.MeshBasicMaterial({ color: 0xD8B47A }));
     scene.add(routeMesh);
-    var lenA = routeA.getLength(), lenB = routeB.getLength();
-    function routePoint(u) { var d = u * (lenA + lenB); return d < lenA ? routeA.getPointAt(d / lenA) : routeB.getPointAt(Math.min(1, (d - lenA) / lenB)); }
     var stops = [];
-    [[LCX, RY1, 13.2], [-8.0, RY, 3.6], [-3.8, RY, -2.4], [9.5, RY, 2.2], [22.6, RY, 0.0]].forEach(function (p) {
+    [[-8.0, 3.6], [-3.8, -2.4], [9.5, 2.2], [22.6, 0.0]].forEach(function (p) {
       var stop = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), new THREE.MeshBasicMaterial({ color: 0xF4EEE4 }));
-      stop.position.set(p[0], p[1], p[2]); scene.add(stop); stops.push(stop);
+      stop.position.set(p[0], RY, p[1]); scene.add(stop); stops.push(stop);
     });
     var dot = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE.MeshBasicMaterial({ color: 0xFFE9B8 }));
     var dotGlow = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 12), new THREE.MeshBasicMaterial({ color: 0xFFD98A, transparent: true, opacity: 0.25, depthWrite: false }));
@@ -474,20 +372,17 @@
     }
 
     // ---------------- камера и поворот ----------------
-    var target = new THREE.Vector3(10.5, 0, 8.2), az = -0.3, pol = 0.8, rad = 52, narrow = false;
+    var target = new THREE.Vector3(9.5, 0, 2.2), az = -0.3, pol = 0.74, rad = 40, narrow = false;
     function fit() {
       var w = canvas.clientWidth, h = canvas.clientHeight, asp = w / h;
       renderer.setSize(w, h, false); camera.aspect = asp; camera.updateProjectionMatrix();
       narrow = asp < 1.7;
-      var r0 = narrow ? 78 : (asp < 2.6 ? 56 : 50);
+      var r0 = narrow ? 50 : (asp < 2.6 ? 44 : 39);
       if (!home) rad = r0; else home.rad = r0;
     }
     // виды: общий план, зал крупно (на сцену и экран), бар и лаунж крупно
     var views = {
       all: null,
-      entrance: { t: [-0.9, 0.5, 12.6], az: 3.3, pol: 0.62, rad: 11 },   // с улицы через распахнутые двери: вход, ковёр, арочные зеркала
-      stairs: { t: [-5.9, 2.2, 2.2], az: -0.6, pol: 1.0, rad: 11 },
-      welcome: { t: [-3.8, 0.9, -2.8], az: -0.4, pol: 0.95, rad: 9 },
       hall: { t: [1.0, 2.2, 2.0], az: 1.47, pol: 1.56, rad: 13.5 },   // с высоты глаз вдоль зала на сцену и экран, ниже люстр
       bar: { t: [23.0, 1.1, 2.8], az: 3.0, pol: 0.82, rad: 8.5 }
     };
@@ -592,16 +487,11 @@
 
     // ---------------- номера зон маршрута (подписи вынесены под схему, поэтому ничего не перекрывается) ----------------
     var box = canvas.parentElement;
-    function pin(n, x, y, z, view) {
-      var el = document.createElement("button"); el.type = "button"; el.className = "pin3d"; el.textContent = n; el.setAttribute("aria-label", "Рассмотреть место " + n);
-      el.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
-      el.addEventListener("click", function () {
-        goView(view); syncViewButtons(view);
-        if (window.dataLayer) window.dataLayer.push({ event: "wed_hall3d_pin", pin: n });
-      });
+    function pin(n, x, y, z) {
+      var el = document.createElement("span"); el.className = "pin3d"; el.textContent = n;
       box.appendChild(el); return { el: el, pos: new THREE.Vector3(x, y, z) };
     }
-    var pins = [pin(1, LCX, 1.9, 13.2, "entrance"), pin(2, -7.4, 1.6, 3.2, "stairs"), pin(3, -3.8, 1.6, -3.0, "welcome"), pin(4, 9.5, 1.9, 2.2, "hall"), pin(5, 22.8, 1.7, 0.2, "bar")];
+    var pins = [pin(1, -7.4, 1.6, 3.2), pin(2, -3.8, 1.6, -3.0), pin(3, 9.5, 1.9, 2.2), pin(4, 22.8, 1.7, 0.2)];
     var pinsOn = true, pinVec = new THREE.Vector3();
     function placeLabels() {
       var w = canvas.clientWidth, h = canvas.clientHeight, show = pinsOn && viewId === "all";
@@ -625,8 +515,8 @@
         if (k < 1) { running = true; return true; } return false;
       });
       if (flyStep(now)) running = true;
-      var u = (now % 12000) / 12000;                       // точка проходит весь маршрут за 12 секунд
-      var pt = routePoint(u); dot.position.copy(pt); dotGlow.position.copy(pt);
+      var u = (now % 9000) / 9000;                         // точка проходит маршрут за 9 секунд
+      var pt = routeCurve.getPointAt(u); dot.position.copy(pt); dotGlow.position.copy(pt);
       place(); renderer.render(scene, camera); placeLabels();
       if (running || drag || pinch || (visible && !reduceMotion)) kick();
     }
@@ -648,14 +538,13 @@
 
     window.addEventListener("resize", function () { fit(); kick(); });
     fit();
-    if (narrow) { az = -0.82; pol = 0.8; target.set(5.5, 0, 6.5); }
+    if (narrow) { az = -0.9; pol = 0.78; target.set(8, 0, 2.4); }
     home = { t: [target.x, target.y, target.z], az: az, pol: pol, rad: rad };
-    if (narrow) { views.hall.rad = 16; views.bar.rad = 14; views.entrance.rad = 15; views.stairs.rad = 14; views.welcome.rad = 12; }
+    if (narrow) { views.hall.rad = 15; views.bar.rad = 14; }
     var vbtns = root.querySelectorAll(".views3d button");
-    function syncViewButtons(id) { vbtns.forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-view") === id ? "true" : "false"); }); }
     vbtns.forEach(function (b) {
       b.addEventListener("click", function () {
-        syncViewButtons(b.getAttribute("data-view"));
+        vbtns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
         goView(b.getAttribute("data-view"));
         if (window.dataLayer) window.dataLayer.push({ event: "wed_hall3d_view", view: b.getAttribute("data-view") });
       });
