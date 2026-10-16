@@ -146,18 +146,18 @@
 
     // ---- полы: зал + лаунж, коридор, welcome-зона ----
     slab([[0.13, 0], [LOUNGE.x0, 0], [LOUNGE.x0, LOUNGE.z0], [LOUNGE.x1, LOUNGE.z0], [LOUNGE.x1, LOUNGE.z1], [HALL_X1, LOUNGE.z1], [HALL_X1, slantZ(HALL_X1)], [0.13, slantZ(0.13)]], M.floor);
-    slab([[-0.86, -1.15], [5.7, -1.15], [5.7, 0], [-0.86, 0]], M.tile);
+    slab([[-0.86, -1.15], [6.7, -1.15], [6.7, 0], [-0.86, 0]], M.tile);
     slab([[-6.7, -5.2], [-0.86, -5.2], [-0.86, 0], [-2.9, 0], [-2.9, -1.15], [-6.7, -1.15]], M.tile);
 
     // ---- стены зала и лаунжа (скошенная — низкая, разрез) ----
-    wall(0.13, 0, 4.2, 0, H, panelMat(4.1)); wall(5.7, 0, LOUNGE.x0, 0, H, panelMat(LOUNGE.x0 - 5.7));   // верхняя стена с проходом из коридора
+    wall(0.13, 0, 5.2, 0, H, panelMat(5.1)); wall(6.7, 0, LOUNGE.x0, 0, H, panelMat(LOUNGE.x0 - 6.7));   // верхняя стена с проходом из коридора
     wall(LOUNGE.x0, 0, LOUNGE.x0, LOUNGE.z0, H, panelMat(2.6)); wall(LOUNGE.x0, LOUNGE.z0, LOUNGE.x1, LOUNGE.z0, H, panelMat(LOUNGE.x1 - LOUNGE.x0));
     wall(LOUNGE.x1, LOUNGE.z0, LOUNGE.x1, LOUNGE.z1, H, panelMat(6.6));
     wall(0.13, 0, 0.13, slantZ(0.13), H, M.dark);                                           // стена за сценой — тёмная, как на фото
     wall(0.13, slantZ(0.13), HALL_X1, slantZ(HALL_X1), 1.1, M.wallLow, 0.25);               // окна: разрез
 
     // ---- колонны (по плану) ----
-    [[2.0, 0.2], [7.45, 0.2], [11.1, 0.2], [14.2, 0.2], [17.9, 0.2], [23.3, 0.2],
+    [[2.0, 0.35], [7.45, 0.35], [11.1, 0.35], [14.2, 0.35], [17.9, 0.35], [23.3, 0.35],
      [11.1, 4.2], [14.5, 4.2], [17.9, 4.2],
      [0.6, 4.0], [2.8, 4.7], [7.45, 5.5], [10.2, 6.3], [15.1, 7.2]].forEach(function (c) {
       var col = new THREE.Mesh(new THREE.BoxGeometry(0.5, H, 0.5), M.col);
@@ -295,8 +295,8 @@
 
     // ---------------- маршрут гостей: от лестницы до лаунжа ----------------
     var RY = 1.15;                                             // над мебелью, чтобы столы не перекрывали линию
-    var routePts = [[-8.0, 3.6], [-5.2, 3.6], [-4.4, 2.2], [-4.3, 0.2], [-3.8, -2.4], [-1.6, -0.7], [2.5, -0.6], [4.95, -0.5],
-      [4.95, 0.7], [6.0, 2.2], [12.5, 2.2], [17.2, 2.1], [19.2, 1.0], [22.6, 0.0]].map(function (p) { return new THREE.Vector3(p[0], RY, p[1]); });
+    var routePts = [[-8.0, 3.6], [-5.2, 3.6], [-4.4, 2.2], [-4.3, 0.2], [-3.8, -2.4], [-2.2, -0.6], [1.5, -0.6], [5.95, -0.6],
+      [5.95, 0.9], [6.6, 2.2], [12.5, 2.2], [17.2, 2.1], [19.2, 1.0], [22.6, 0.0]].map(function (p) { return new THREE.Vector3(p[0], RY, p[1]); });
     var routeCurve = new THREE.CatmullRomCurve3(routePts, false, "centripetal", 0.4);
     var routeMesh = new THREE.Mesh(new THREE.TubeGeometry(routeCurve, 220, 0.055, 8, false), new THREE.MeshBasicMaterial({ color: 0xD8B47A }));
     scene.add(routeMesh);
