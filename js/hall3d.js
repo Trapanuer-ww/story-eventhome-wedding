@@ -377,7 +377,7 @@
       var w = canvas.clientWidth, h = canvas.clientHeight, asp = w / h;
       renderer.setSize(w, h, false); camera.aspect = asp; camera.updateProjectionMatrix();
       narrow = asp < 1.7;
-      var r0 = narrow ? 50 : (asp < 2.6 ? 44 : 39);
+      var r0 = narrow ? 64 : (asp < 2.6 ? 44 : 39);
       if (!home) rad = r0; else home.rad = r0;
     }
     // виды: общий план, зал крупно (на сцену и экран), бар и лаунж крупно
