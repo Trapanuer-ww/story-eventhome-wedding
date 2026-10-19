@@ -268,11 +268,13 @@ address{ font-style:normal; }
 .case-quote footer{ margin-top:10px; font-size:14px; font-weight:700; color:var(--ink-soft); }
 
 /* ---------- 4. Вечер в Story: галерея ---------- */
-.bento{ display:flex; flex-direction:column; gap:clamp(8px,1vw,14px); }
-.brow{ display:flex; gap:clamp(8px,1vw,14px); }
-.bento figure{ flex:var(--r) 1 0; min-width:0; aspect-ratio:var(--r); overflow:hidden; background:var(--paper-2); }
+.bento{ display:grid; grid-template-columns:1fr 1.4fr 1fr 1fr; grid-template-rows:repeat(2,min(240px,27svh)); gap:clamp(8px,1vw,14px); }
+.bento figure{ overflow:hidden; background:var(--paper-2); }
 .bento img{ width:100%; height:100%; object-fit:cover; transition:transform 1.2s var(--ease); }
 .bento figure:hover img{ transform:scale(1.03); }
+.bento .b1{ grid-row:1 / 3; }
+.bento .b2{ grid-column:2 / 4; }
+.bento .b3{ grid-column:4; grid-row:1 / 3; }
 
 /* ---------- 5. В день свадьбы ---------- */
 .ready-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:clamp(28px,5vw,88px); align-items:center; }
@@ -413,10 +415,10 @@ address{ font-style:normal; }
 }
 
 @media (max-width:759px){
-  .bento{ gap:8px; }
-  .brow{ flex-wrap:wrap; gap:8px; }
-  .bento figure{ flex:1 1 calc(50% - 4px); }
-  .bento figure.wide{ flex-basis:100%; }
+  .bento{ grid-template-columns:1fr 1fr; grid-template-rows:none; grid-auto-rows:auto; gap:8px; }
+  .bento figure{ aspect-ratio:4/5; }
+  .bento .b1,.bento .b2,.bento .b3{ grid-row:auto; grid-column:auto; }
+  .bento .b2{ grid-column:1 / -1; aspect-ratio:3/2; order:-1; }
 }
 @media (max-width:759px){
   :root{ --header-h:73px; --pad:clamp(36px,5.6svh,48px); }

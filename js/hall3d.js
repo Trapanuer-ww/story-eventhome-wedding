@@ -526,7 +526,9 @@
       btns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
       layoutId = b.getAttribute("data-layout");
       var seats = setLayout(layoutId);
-      var note = b.getAttribute("data-note").replace("{n}", String(seats));
+      var m10 = seats % 10, m100 = seats % 100;
+      var seatsText = seats + " " + (m10 === 1 && m100 !== 11 ? "место" : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "места" : "мест"));   // 1 место, 2 места, 5 мест, 51 место
+      var note = b.getAttribute("data-note").replace("{n} мест", seatsText);
       noteEl.textContent = note;
       canvas.setAttribute("aria-label", "Трёхмерная схема площадки Story: " + b.textContent + ". " + note);
       if (!silent) {
