@@ -325,7 +325,8 @@ address{ font-style:normal; }
 .f-done p{ color:var(--pearl-soft); }
 
 /* ---------- 7. Вопросы ---------- */
-.qa-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:clamp(24px,5vw,90px); align-items:start; }
+.qa-grid{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:clamp(28px,6vw,100px); align-items:start; }
+.qa-grid > .qa-head{ order:2; }
 .qa-grid .sub{ margin-top:16px; color:var(--ink-soft); }
 .qa details{ border-bottom:1px solid var(--line); }
 .qa details:first-child{ border-top:1px solid var(--line); }
@@ -412,6 +413,7 @@ address{ font-style:normal; }
 }
 @media (max-width:1023px){
   .hero-grid,.ready-grid,.ask-grid,.qa-grid,.howto-grid{ grid-template-columns:1fr; }
+  .qa-grid > .qa-head{ order:0; }
   .hero{ grid-template-columns:1fr; grid-template-rows:auto auto; height:auto; }
   .hero .film{ order:-1; height:56svh; border-radius:0 0 0 32px; }
   .hero-text{ padding:28px var(--gutter) 36px; }
@@ -484,7 +486,6 @@ address{ font-style:normal; }
   .story-b24 .b24-form-control-container label,.story-b24 .b24-form-control-label{ font-size:14px !important; }
 }
 
-.case-draft{ padding:10px 14px; border:1px dashed rgba(134,102,58,.55); border-radius:10px; background:rgba(216,180,122,.12); color:var(--ink-soft); font-size:14px; line-height:1.45; }
 
 .walk-more{ margin-top:clamp(20px,3svh,32px); }
 @media (max-width:759px){ .walk-more .btn{ width:100%; } }
