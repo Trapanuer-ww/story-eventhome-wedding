@@ -182,6 +182,7 @@
   /* Цель b24_form_submit с place=wedding — как у форм сайта.               */
   /* ---------------------------------------------------------------------- */
   // Гипотеза P: «Получить презентацию Story» — та же форма, но с заголовком про презентацию и своей целью
+  var b24Box = document.getElementById("b24Wedding"), b24Fallback = document.getElementById("b24Fallback");
   var wantsPresentation = false;
   try { wantsPresentation = sessionStorage.getItem("wedPresentation") === "1"; } catch (e) { /* хранилище недоступно */ }
   var presBtn = document.getElementById("presentationBtn");
@@ -200,8 +201,10 @@
   window.addEventListener("b24:form:send:success", function () {
     track("b24_form_submit", { form: "b24-crm-7", place: "wedding", intent: wantsPresentation ? "presentation" : "view" });
     if (wantsPresentation) track("wed_presentation_lead", { form: "b24-crm-7" });
+    // после отправки формы ведём на Яндекс Диск; пауза нужна, чтобы цели Метрики успели уйти
+    var next = b24Box && b24Box.getAttribute("data-after-submit");
+    if (next) window.setTimeout(function () { window.location.href = next; }, 1200);
   });
-  var b24Box = document.getElementById("b24Wedding"), b24Fallback = document.getElementById("b24Fallback");
   window.setTimeout(function () {
     // форма не отрисовалась (нет сети, блокировщик, превью без доступа к Битрикс24) — показываем телефон
     if (b24Box && !b24Box.querySelector(".b24-form")) { b24Box.style.minHeight = "0"; b24Fallback.hidden = false; }
