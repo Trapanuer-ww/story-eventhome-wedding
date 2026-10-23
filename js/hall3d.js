@@ -157,9 +157,9 @@
     wall(0.13, slantZ(0.13), HALL_X1, slantZ(HALL_X1), 1.1, M.wallLow, 0.25);               // окна: разрез
 
     // ---- колонны (по плану) ----
-    [[2.0, 0.2], [7.45, 0.2], [11.1, 0.2], [14.2, 0.2], [17.9, 0.2], [23.3, 0.2],
-     [11.1, 4.2], [14.5, 4.2], [17.9, 4.2],
-     [0.6, 4.0], [2.8, 4.7], [7.45, 5.5], [10.2, 6.3], [15.1, 7.2]].forEach(function (c) {
+    [[7.45, 0.2], [11.1, 0.2], [14.2, 0.2], [17.9, 0.2], [23.3, 0.2],
+     [11.1, 4.2], [14.5, 4.2],
+     [7.45, 5.5], [10.2, 6.3]].forEach(function (c) {
       var col = new THREE.Mesh(new THREE.BoxGeometry(0.5, H, 0.5), M.col);
       col.position.set(c[0], H / 2, c[1]); col.castShadow = col.receiveShadow = true; scene.add(col);
       var base = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.9, 0.66), M.colBase);
